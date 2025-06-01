@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Baby_Gemoy-Regular';
+  src: url('./fonts/Baby_Gemoy-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Franchise-Regular';
+  src: url('./fonts/Franchise-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Gameplay-Regular';
+  src: url('./fonts/Gameplay-Regular.ttf') format('truetype');
+}
+
+@theme {
+  --font-baby-gemoy: 'Baby_Gemoy-Regular', sans-serif;
+  --font-franchise: 'Franchise-Regular', sans-serif;
+  --font-gameplay: 'Gameplay-Regular', sans-serif;
+}
+
+@tailwind utilities;
+
+@layer components {
+  .all-\[unset\] {
+    all: unset;
+  }
+}
