@@ -27,8 +27,19 @@ export const SwipePage = () => {
   const currentCard = cards[currentIndex];
 
   const handleYay = () => {
-    setVotedYes((prev) => [...prev, currentCard.id]);
-    setCurrentIndex((prev) => prev + 1);
+      const updatedVotes = [...votedYes, currentCard.id];
+      setVotedYes(updatedVotes);
+
+      // FAKE MATCH LOGIC FOR NOW
+      const isMatch = true;
+
+      if (isMatch) {
+        navigate('/match', {
+          state: { cardName: currentCard.text }, // Pass card name to match screen
+        });
+      } else {
+        setCurrentIndex((prev) => prev + 1);
+      }
   };
 
   const handleNay = () => {
