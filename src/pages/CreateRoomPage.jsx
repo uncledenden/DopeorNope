@@ -10,7 +10,8 @@ import { PrimaryButton } from "../components/Buttons";
 import UnselectedIcon from '../assets/UnselectedIcon.png';
 import SelectedHeartIcon from '../assets/SelectedHeartIcon.png';
 import { useNavigate } from "react-router-dom";
-import { useRoom } from '../RoomContext.jsx'; // ✅ Make sure this is correct
+import { useRoom } from '../RoomContext.jsx'; 
+import { createRoom } from '../firebaseHelpers';
 
 const categories = [
   { id: 1, title: "THE HUNGER GAMES", color: "blue", visualIcon: BreadIcon },
@@ -33,15 +34,23 @@ const CreateRoomPage = () => {
     setSelectedCategory(id);
   };
 
-  const handleCreateRoom = () => {
-    if (!selectedCategory) return alert('Please select a category first.');
+  const handleCreateRoom = async () => {
+  if (!selectedCategory) return alert('Please select a category first.');
 
-    const code = Math.floor(10000 + Math.random() * 90000).toString();
-    setRoomCode(code);
-    setIsHost(true);
-    setCategory(selectedCategory); // ✅ Save the category to context
-    navigate('/swipe');
-  };
+  const code = Math.floor(10000 + Math.random() * 90000).toString();
+
+  try {
+    await createRoom(code); // 👈 Store room in Firebase
+    setRoomCode(code);      // 👈 Store in context for later use
+    setIsHost(true);        // 👈 Mark user as host
+    setCategory(selectedCategory); // 👈 Save chosen category
+    navigate('/swipe');     // 👈 Go to the swipe screen
+  } catch (error) {
+    console.error("Error creating room:", error);
+    alert("Failed to create room. Please try again.");
+  }
+};
+
 
   const borderColors = {
     blue: "border-[#01204e] shadow-[4px_4px_0px_#57adff]",

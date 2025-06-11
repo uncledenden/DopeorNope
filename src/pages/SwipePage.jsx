@@ -6,6 +6,11 @@ import YayIcon from '../assets/YayIcon.png';
 import { useRoom } from '../RoomContext';
 import { cardPool } from '../data/cardPool';
 import { useNavigate } from 'react-router-dom';
+import {
+  submitVote,
+  listenForMatch,
+  stopListeningForMatch,
+} from '../firebaseHelpers';
 
 export const SwipePage = () => {
   const navigate = useNavigate();
@@ -24,23 +29,41 @@ export const SwipePage = () => {
     }
   }, [category]);
 
+  useEffect(() => {
+  if (!roomCode) return;
+
+  const unsubscribe = listenForMatch(roomCode, (matchedCardId) => {
+    const match = cards.find((c) => c.id === matchedCardId);
+    if (match) {
+      navigate('/match', {
+        state: { cardName: match.text },
+      });
+    }
+  });
+
+  return () => {
+    stopListeningForMatch(unsubscribe);
+  };
+}, [roomCode, cards, navigate]);
+
   const currentCard = cards[currentIndex];
 
-  const handleYay = () => {
-      const updatedVotes = [...votedYes, currentCard.id];
-      setVotedYes(updatedVotes);
+  const handleYay = async () => {
+  const currentCardId = currentCard.id;
 
-      // FAKE MATCH LOGIC FOR NOW
-      const isMatch = true;
+  // Save to local so user doesn't vote twice
+  const updatedVotes = [...votedYes, currentCardId];
+  setVotedYes(updatedVotes);
 
-      if (isMatch) {
-        navigate('/match', {
-          state: { cardName: currentCard.text }, // Pass card name to match screen
-        });
-      } else {
-        setCurrentIndex((prev) => prev + 1);
-      }
-  };
+  try {
+    await submitVote(roomCode, currentCardId, isHost);
+  } catch (error) {
+    console.error("Error submitting vote:", error);
+  }
+
+  setCurrentIndex((prev) => prev + 1);
+};
+
 
   const handleNay = () => {
     setCurrentIndex((prev) => prev + 1);

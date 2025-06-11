@@ -3,20 +3,31 @@ import { InputField } from '../components/InputField.jsx';
 import { PrimaryButton } from '../components/Buttons.jsx';
 import { useNavigate } from 'react-router-dom';
 import { useRoom } from '../RoomContext.jsx';
+import { getRoom } from '../firebaseHelpers';
 
 
 
+const handleJoin = async () => {
+  if (!inputCode) {
+    alert("Please enter a room code.");
+    return;
+  }
 
-const JoinRoomPage = () => {
-    const navigate = useNavigate();
-    const [inputCode, setInputCode] = useState('');
-    const { setRoomCode, setIsHost } = useRoom();
+  try {
+    const room = await getRoom(inputCode);
+    
+    if (!room) {
+      alert("Room not found. Please check your code.");
+      return;
+    }
 
-    const handleJoin = () => {
-    setRoomCode(inputCode);
-    setIsHost(false);
-    navigate('/swipe');
-    };
+    setRoomCode(inputCode);       // 👈 Store in context
+    setIsHost(false);             // 👈 Guest, not host
+    navigate('/swipe');           // 👈 Go to swipe page
+  } catch (error) {
+    console.error("Failed to join room:", error);
+    alert("Error joining room. Please try again.");
+  }
 
   return (
     <div className="flex flex-col h-[844px] items-center gap-[86px] px-5 py-[62px] relative bg-[#ffd6d6]">
