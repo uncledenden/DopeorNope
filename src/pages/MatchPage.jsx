@@ -1,5 +1,7 @@
 // src/pages/MatchScreen.jsx
 import { useLocation, useNavigate } from 'react-router-dom';
+import { MiniButton } from '../components/Buttons';
+import { PrimaryButton, SecondaryButton } from '../components/Buttons.jsx';
 
 export default function MatchScreen() {
   const location = useLocation();
@@ -7,38 +9,35 @@ export default function MatchScreen() {
   const cardName = location.state?.cardName || "SOMETHING FUN";
 
   return (
-    <div className="min-h-screen bg-pink-200 flex flex-col items-center justify-center text-center font-bold">
-      <div className="absolute top-4 right-4">
-        <button
-          onClick={() => navigate('/')}
-          className="border-2 border-blue-500 bg-white px-4 py-2 rounded-full text-sm"
-        >
-          END MY MISERY
-        </button>
-      </div>
+    <div className="flex justify-between flex-col items-center p-5 px-6 gap-4 w-full bg-[#ffd6d6] min-h-screen overflow-hidden">
+        <div className="flex justify-between items-center w-full">
+                <img src="/logo.png" alt="Dope or Nope Logo" className="w-[100px] h-auto" />
+                <MiniButton onClick={() => navigate('/')}>end my mysery</MiniButton>
+              </div>
+        <div className='flex flex-col items-start p-4 relative self-stretch w-full bg-white rounded-lg border-2 border-solid border-[#01204e] shadow-[6px_6px_0px_#57adff]'>
+          
+                <div className="flex flex-col items-start gap-4 w-full">
+                    <div
+                    style={{ fontFamily: 'Franchise-Regular' }} className="text-[#01204e] text-[48px]">
+                    CONGRATULATION!
+                    </div>
+                    <p style={{ fontFamily: 'Gameplay-Regular' }} className="text-[#01204e] text-xs font-normal">
+                    YOU HAVE A MATCH! <br />
+                    YOU AND YOUR SEXY PARTNER CHOOSE:
+                    </p>
+                    <p style={{ fontFamily: 'Gameplay-Regular' }} className="text-[#01204e] text-[20px] font-bold">
+                    {cardName}
+                    </p>
 
-      <div className="bg-white border-2 border-blue-500 rounded-lg shadow-lg px-8 py-6">
-        <h1 className="text-3xl mb-4 tracking-widest">CONGRATULATION!</h1>
-        <p className="mb-2">YOU HAVE A MATCH!</p>
-        <p className="mb-4">YOU AND YOUR SEXY PARTNER CHOOSE:</p>
-        <h2 className="text-xl text-blue-800 mb-6">{cardName}</h2>
 
-        <button
-          onClick={() => navigate('/')}
-          className="bg-blue-400 text-white px-6 py-2 rounded-lg mb-3"
-        >
-          GO DO SOMETHING
-        </button>
+                      <div className="flex flex-col items-stretch gap-4 w-full">
+                          <PrimaryButton onClick={() => navigate("/")}>Go do something</PrimaryButton>
+                          <SecondaryButton onClick={() => navigate("/")}>ok, we are done, pls go</SecondaryButton>
+                      </div>
+          </div>
+        </div>
 
-        <button
-          onClick={() => navigate('/')}
-          className="border-2 border-black px-6 py-2 rounded-lg"
-        >
-          OH, WE ARE DONE, PLS GO
-        </button>
-      </div>
-
-      <p className="absolute bottom-4 text-xs">SEE YA SOON!</p>
+      <p style={{ fontFamily: 'Gameplay-Regular' }} className="text-[#01204e] text-[20px] font-bold">SEE YA SOON!</p>
     </div>
   );
 }

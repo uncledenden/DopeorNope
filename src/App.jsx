@@ -6,7 +6,7 @@ import LandingPage from "./pages/LandingPage";
 import JoinRoomPage from "./pages/JoinRoomPage";
 import CreateRoomPage from "./pages/CreateRoomPage";
 import SwipePage from "./pages/SwipePage";
-import MatchScreen from './pages/MatchScreen';
+import MatchPage from './pages/MatchPage';
 
 const App = () => {
   return (
@@ -16,7 +16,7 @@ const App = () => {
         <Route path="/join" element={<JoinRoomPage />} />
         <Route path="/create" element={<CreateRoomPage />} />
         <Route path="/swipe" element={<SwipePage />} />
-        <Route path="/match" element={<MatchScreen />} />
+        <Route path="/match" element={<MatchPage />} />
         {/* Add more routes as needed */}
       </Routes>
   );
