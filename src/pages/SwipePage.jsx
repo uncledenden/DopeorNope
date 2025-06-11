@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MiniButton } from '../components/Buttons';
 import { SwipeCard } from '../components/SwipeCard';
 import NayIcon from '../assets/NayIcon.png';
@@ -7,7 +7,6 @@ import { useRoom } from '../RoomContext';
 import { cardPool } from '../data/cardPool';
 import { useNavigate } from 'react-router-dom';
 
-
 export const SwipePage = () => {
   const navigate = useNavigate();
   const { roomCode, isHost, category } = useRoom();
@@ -15,9 +14,7 @@ export const SwipePage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [votedYes, setVotedYes] = useState([]);
 
-  const shuffleArray = (array) => {
-    return [...array].sort(() => Math.random() - 0.5);
-  };
+  const shuffleArray = (array) => [...array].sort(() => Math.random() - 0.5);
 
   useEffect(() => {
     if (category) {
@@ -29,49 +26,50 @@ export const SwipePage = () => {
 
   const currentCard = cards[currentIndex];
 
-  const handleSwipe = (direction, card) => {
-    console.log("Swiped", direction, card);
-    if (direction === 'right') {
-      setVotedYes((prev) => [...prev, card.id]);
-    }
+  const handleYay = () => {
+    setVotedYes((prev) => [...prev, currentCard.id]);
     setCurrentIndex((prev) => prev + 1);
   };
 
-  const handleYay = () => handleSwipe('right', currentCard);
-  const handleNay = () => handleSwipe('left', currentCard);
-  const swipeRef = useRef();
+  const handleNay = () => {
+    setCurrentIndex((prev) => prev + 1);
+  };
 
   return (
-    <div className="flex flex-col items-center p-5 px-6 gap-4 w-full bg-[#ffd6d6] min-h-screen">
+    <div className="flex flex-col items-center p-5 px-6 gap-4 w-full bg-[#ffd6d6] min-h-screen overflow-hidden">
       {/* Header */}
       <div className="flex justify-between items-center w-full">
         <img src="/logo.png" alt="Dope or Nope Logo" className="w-[100px] h-auto" />
-        <p style={{ fontFamily: 'Gameplay-Regular' }} className="text-xs text-[#01204e] font-bold">
+        <p
+          style={{ fontFamily: 'Gameplay-Regular' }}
+          className="p-4 text-xs text-[#01204e] font-bold"
+        >
           ROOM CODE: {roomCode}
         </p>
         <MiniButton onClick={() => navigate('/')}>end my mysery</MiniButton>
       </div>
 
-
       {/* Main Card */}
-       <div className="w-full flex justify-center items-center flex-grow">
+      <div className="w-full h-full flex justify-center items-center">
         {currentCard ? (
-          <div className="flex-col items-center justify-center w-full h-full">
-            <SwipeCard ref={swipeRef} card={currentCard} onSwipe={handleSwipe} />
+          <div className="w-full h-full">
+            <SwipeCard card={currentCard} />
           </div>
         ) : (
-          <div className="flex items-center justify-center w-full h-full">
-            <div className="text-[#01204e] text-xl" style={{ fontFamily: 'Gameplay-Regular' }}>
+          <div className="flex items-center justify-center w-full h-[580px]">
+            <div
+              className="text-[#01204e] text-xl"
+              style={{ fontFamily: 'Gameplay-Regular' }}
+            >
               You are fuuucked!
             </div>
           </div>
         )}
       </div>
 
-
       {/* Bottom Buttons */}
       {currentCard && (
-        <div className="flex items-center justify-between w-full px-6 py-4 bg-white border-2 border-[#01204e] shadow-[6px_6px_0px_#57adff] rounded-lg">
+        <div className="flex items-center justify-between w-full px-6 py-4 bg-white border-2 border-[#01204e] shadow-[6px_6px_0px_#57adff] rounded-lg z-20">
           {/* Nay */}
           <div
             className="flex flex-col items-center gap-2 cursor-pointer"
