@@ -15,7 +15,7 @@ export const createRoom = async (code, category) => {
 };
 
 
-export const joinRoom = async (code) => {
+export const getRoom = async (code) => {
   const roomRef = doc(db, 'rooms', code);
   const roomSnap = await getDoc(roomRef);
 
