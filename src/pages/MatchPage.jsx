@@ -1,43 +1,48 @@
-// src/pages/MatchScreen.jsx
+// src/pages/MatchPage.jsx
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { MiniButton } from '../components/Buttons';
-import { PrimaryButton, SecondaryButton } from '../components/Buttons.jsx';
+import { PrimaryButton } from '../components/Buttons';
+import { resetMatch } from '../firebaseHelpers';
+import { useRoom } from '../RoomContext';
 
-export default function MatchScreen() {
-  const location = useLocation();
+const MatchPage = () => {
   const navigate = useNavigate();
-  const cardName = location.state?.cardName || "SOMETHING FUN";
+  const location = useLocation();
+  const { cardName } = location.state || {};
+
+  if (!cardName) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#ffd6d6]">
+        <p className="text-xl text-[#01204e]" style={{ fontFamily: 'Gameplay-Regular' }}>
+          No match found yet.
+        </p>
+        <PrimaryButton onClick={() => navigate('/')}>Back Home</PrimaryButton>
+      </div>
+    );
+  }
+
+const { roomCode } = useRoom();
+
+const handleStartOver = () => {
+  resetMatch(roomCode);
+  navigate('/');
+};
+
 
   return (
-    <div className="flex justify-between flex-col items-center p-5 px-6 gap-4 w-full bg-[#ffd6d6] min-h-screen overflow-hidden">
-        <div className="flex justify-between items-center w-full">
-                <img src="/logo.png" alt="Dope or Nope Logo" className="w-[100px] h-auto" />
-                <MiniButton onClick={() => navigate('/')}>end my mysery</MiniButton>
-              </div>
-        <div className='flex flex-col items-start p-4 relative self-stretch w-full bg-white rounded-lg border-2 border-solid border-[#01204e] shadow-[6px_6px_0px_#57adff]'>
-          
-                <div className="flex flex-col items-start gap-4 w-full">
-                    <div
-                    style={{ fontFamily: 'Franchise-Regular' }} className="text-[#01204e] text-[48px]">
-                    CONGRATULATION!
-                    </div>
-                    <p style={{ fontFamily: 'Gameplay-Regular' }} className="text-[#01204e] text-xs font-normal">
-                    YOU HAVE A MATCH! <br />
-                    YOU AND YOUR SEXY PARTNER CHOOSE:
-                    </p>
-                    <p style={{ fontFamily: 'Gameplay-Regular' }} className="text-[#01204e] text-[20px] font-bold">
-                    {cardName}
-                    </p>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#ffd6d6]">
+      <img src="/logo.png" alt="Dope or Nope Logo" className="w-48 mb-6" />
+      <h1 className="text-4xl text-[#01204e] font-franchise mb-4">It’s a Match!</h1>
+      <p className="text-xl text-[#01204e] font-bold" style={{ fontFamily: 'Gameplay-Regular' }}>
+        You both said YES to:
+      </p>
+      <p className="text-2xl text-[#01204e] my-4 font-bold" style={{ fontFamily: 'Gameplay-Regular' }}>
+        {cardName}
+      </p>
+      <PrimaryButton onClick={handleStartOver}>Start Over</PrimaryButton>
 
-
-                      <div className="flex flex-col items-stretch gap-4 w-full">
-                          <PrimaryButton onClick={() => navigate("/")}>Go do something</PrimaryButton>
-                          <SecondaryButton onClick={() => navigate("/")}>ok, we are done, pls go</SecondaryButton>
-                      </div>
-          </div>
-        </div>
-
-      <p style={{ fontFamily: 'Gameplay-Regular' }} className="text-[#01204e] text-[20px] font-bold">SEE YA SOON!</p>
     </div>
   );
-}
+};
+
+export default MatchPage;

@@ -40,7 +40,7 @@ const CreateRoomPage = () => {
   const code = Math.floor(10000 + Math.random() * 90000).toString();
 
   try {
-    await createRoom(code); // 👈 Store room in Firebase
+   await createRoom(code, selectedCategory); // ✅ include category
     setRoomCode(code);      // 👈 Store in context for later use
     setIsHost(true);        // 👈 Mark user as host
     setCategory(selectedCategory); // 👈 Save chosen category

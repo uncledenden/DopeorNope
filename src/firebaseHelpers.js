@@ -1,47 +1,93 @@
 // src/firebaseHelpers.js
+// firebaseHelpers.js
 import { db } from './firebase';
-import { ref, set, push, onValue, get, update } from 'firebase/database';
+import { doc, setDoc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 
-export const createRoom = async () => {
-  const roomRef = push(ref(db, 'rooms'));
-  const roomCode = roomRef.key;
-  await set(roomRef, {
-    createdAt: Date.now(),
-    swipes: {},
+
+export const createRoom = async (code, category) => {
+  const roomRef = doc(db, 'rooms', code);
+
+  await setDoc(roomRef, {
+    category,
+    swipes: {}, // will store each user's swipes
+    matched: false,
   });
-  return roomCode;
 };
 
-export const joinRoom = async (roomCode) => {
-  const roomRef = ref(db, `rooms/${roomCode}`);
-  const snap = await get(roomRef);
-  return snap.exists();
+
+export const joinRoom = async (code) => {
+  const roomRef = doc(db, 'rooms', code);
+  const roomSnap = await getDoc(roomRef);
+
+  if (!roomSnap.exists()) {
+    throw new Error('Room does not exist');
+  }
+
+  return roomSnap.data(); // return category or whatever you need
 };
 
-export const sendSwipe = async (roomCode, userId, cardId, isYay) => {
-  const path = `rooms/${roomCode}/swipes/${userId}/${cardId}`;
-  await set(ref(db, path), isYay);
-};
+export const submitSwipe = async (code, userId, cardId, saidYes) => {
+  const roomRef = doc(db, 'rooms', code);
+  const roomSnap = await getDoc(roomRef);
 
-export const listenForMatches = (roomCode, onMatchFound) => {
-  const roomRef = ref(db, `rooms/${roomCode}/swipes`);
-  onValue(roomRef, (snapshot) => {
-    const swipes = snapshot.val();
-    if (!swipes) return;
+  if (!roomSnap.exists()) return;
 
-    const cardMap = {};
+  const roomData = roomSnap.data();
+  const swipes = roomData.swipes || {};
 
-    Object.entries(swipes).forEach(([user, userSwipes]) => {
-      Object.entries(userSwipes).forEach(([cardId, decision]) => {
-        if (decision) {
-          cardMap[cardId] = (cardMap[cardId] || 0) + 1;
-        }
-      });
-    });
+  // Add the new swipe
+  const updatedUserSwipes = [...(swipes[userId] || []), { cardId, saidYes }];
 
-    const match = Object.entries(cardMap).find(([_, count]) => count >= 2);
-    if (match) {
-      onMatchFound(match[0]); // cardId
+  await updateDoc(roomRef, {
+    [`swipes.${userId}`]: updatedUserSwipes,
+  });
+
+  // ✅ If user said yes — check for a match
+  if (saidYes) {
+    const usersWhoSaidYes = Object.entries(swipes).filter(([uid, userSwipes]) =>
+      userSwipes.some((swipe) => swipe.cardId === cardId && swipe.saidYes)
+    );
+
+    // Include this user's yes in the check (since we are adding it now)
+    if (!usersWhoSaidYes.some(([uid]) => uid === userId)) {
+      usersWhoSaidYes.push([userId, updatedUserSwipes]);
     }
-  });
+
+    if (usersWhoSaidYes.length >= 2) {
+      // ✅ Save the matched card in the room if not already saved
+      if (!roomData.matchedCard) {
+        await updateDoc(roomRef, {
+          matchedCard: cardId,
+        });
+      }
+    }
+  }
+};
+
+
+export const checkForMatch = async (code, cardId) => {
+  const roomRef = doc(db, 'rooms', code);
+  const roomSnap = await getDoc(roomRef);
+
+  if (!roomSnap.exists()) return false;
+
+  const swipes = roomSnap.data().swipes;
+
+  const usersWhoSaidYes = Object.entries(swipes).filter(([_, userSwipes]) =>
+    userSwipes.some((swipe) => swipe.cardId === cardId && swipe.saidYes)
+  );
+
+  return usersWhoSaidYes.length >= 2; // both said yes
+};
+
+export const resetMatch = async (code) => {
+  const roomRef = doc(db, 'rooms', code);
+
+  try {
+    await updateDoc(roomRef, {
+      matchedCard: null,
+    });
+  } catch (error) {
+    console.error('Error resetting match:', error);
+  }
 };
